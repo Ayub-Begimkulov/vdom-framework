@@ -1,23 +1,29 @@
 export interface VNode {
   tagName: string;
-  attrs?: Attributes;
+  options?: VNodeOptions;
   children?: Children;
 }
 
-interface Attributes {
-  [key: string]: string;
+interface VNodeOption<T> {
+  [key: string]: T;
+}
+
+interface VNodeOptions {
+  attrs?: VNodeOption<string>;
+  events?: VNodeOption<EventListenerOrEventListenerObject>;
+  style?: VNodeOption<string>;
 }
 
 type Children = Array<VNode | string>;
 
 export default (
   tagName: string,
-  attrs?: Attributes,
+  options?: VNodeOptions,
   children?: Children
 ): VNode => {
   return {
     tagName,
-    attrs,
+    options,
     children
   };
 };
