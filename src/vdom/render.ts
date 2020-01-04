@@ -1,10 +1,14 @@
 import { VNode } from './create-element';
 
-export const render = (element: VNode, selector: string) => {
-  document.querySelector(selector)?.append(renderEl(element));
+const render = (node: VNode | string) => {
+  if (typeof node === 'string') {
+    return document.createTextNode(node);
+  }
+
+  return renderVNode(node);
 };
 
-const renderEl = ({
+const renderVNode = ({
   tagName,
   options: { attrs, events, style } = {},
   children = []
@@ -30,13 +34,10 @@ const renderEl = ({
   }
 
   for (const child of children) {
-    const childNode =
-      typeof child === 'string'
-        ? document.createTextNode(child)
-        : renderEl(child);
-
-    el.appendChild(childNode);
+    el.appendChild(render(child));
   }
 
   return el;
 };
+
+export default render;
