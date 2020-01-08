@@ -1,7 +1,7 @@
 export interface VNode {
   tagName: string;
   options?: VNodeOptions;
-  children?: Children;
+  children?: VChildren;
 }
 
 interface VNodeOption<T> {
@@ -9,17 +9,18 @@ interface VNodeOption<T> {
 }
 
 interface VNodeOptions {
-  attrs?: VNodeOption<string>;
+  attrs?: VAttributes;
   events?: VNodeOption<EventListenerOrEventListenerObject>;
   style?: VNodeOption<string>;
 }
 
-type Children = Array<VNode | string>;
+export type VChildren = Array<VNode | string>;
+export type VAttributes = VNodeOption<string>;
 
 export default (
   tagName: string,
   options?: VNodeOptions,
-  children?: Children
+  children?: VChildren
 ): VNode => {
   return {
     tagName,
