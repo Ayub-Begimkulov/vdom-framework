@@ -4,12 +4,24 @@ import mount from './vdom/mount';
 
 class App extends Component {
   constructor() {
-    super({});
+    super({
+      name: 'Ayub'
+    });
   }
 
   render(h: CreateElementFunction) {
-    // @ts-ignore
-    return h('div', {}, [h('h1', {}, ['Hello world']), Home]);
+    return h('div', {}, [
+      h('h1', {}, ['Hello world' + this.state.name]),
+      h('input', {
+        attrs: {
+          type: 'text'
+        },
+        events: {
+          input: e => (this.state.name = (<HTMLInputElement>e.target).value)
+        }
+      }),
+      Home
+    ]);
   }
 }
 
@@ -40,4 +52,4 @@ class Home extends Component {
   }
 }
 
-mount(new App().dom, <HTMLElement>document.getElementById('app'));
+mount(App, <HTMLElement>document.getElementById('app'));

@@ -1,5 +1,8 @@
-export default (element: HTMLElement | Text, target: HTMLElement) => {
+import { IComponent } from './component';
+
+export default (component: IComponent, target: HTMLElement) => {
   target.innerHTML = '';
-  target.appendChild(element);
-  return element;
+  const el = new component().el;
+  target.appendChild(el);
+  return el;
 };

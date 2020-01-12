@@ -1,11 +1,16 @@
-import { VNode } from './create-element';
+import { VNode, isVNode } from './create-element';
+import { IComponent } from './component';
 
-const render = (node: VNode | string) => {
+const render = (node: VNode | IComponent | string) => {
   if (typeof node === 'string') {
     return document.createTextNode(node);
   }
 
-  return renderVNode(node);
+  if (isVNode(node)) {
+    return renderVNode(node);
+  }
+
+  return new node().el;
 };
 
 const renderVNode = ({
