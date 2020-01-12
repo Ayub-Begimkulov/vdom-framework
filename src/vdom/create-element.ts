@@ -16,8 +16,9 @@ interface VNodeOptions {
 
 export type VChildren = Array<VNode | string>;
 export type VAttributes = VNodeOption<string>;
+export type CreateElementFunction = typeof createElement;
 
-export default (
+const createElement = (
   tagName: string,
   options?: VNodeOptions,
   children?: VChildren
@@ -28,3 +29,5 @@ export default (
     children
   };
 };
+
+export default createElement;
