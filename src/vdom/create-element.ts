@@ -1,3 +1,5 @@
+import { IComponent } from './component';
+
 export interface VNode {
   tagName: string;
   options?: VNodeOptions;
@@ -14,7 +16,7 @@ interface VNodeOptions {
   style?: VNodeOption<string>;
 }
 
-export type VChildren = Array<VNode | string>;
+export type VChildren = Array<VNode | IComponent | string>;
 export type VAttributes = VNodeOption<string>;
 export type CreateElementFunction = typeof createElement;
 
@@ -29,5 +31,8 @@ const createElement = (
     children
   };
 };
+
+export const isVNode = (node: VNode | IComponent): node is VNode =>
+  !!(<VNode>node).tagName;
 
 export default createElement;
