@@ -1,69 +1,43 @@
-import createElement, { VNode } from './vdom/create-element';
-import render from './vdom/render';
+import { VNode, CreateElementFunction } from './vdom/create-element';
+import Component from './vdom/component';
 import mount from './vdom/mount';
-import diff from './vdom/diff';
 
-type CreateComponentFunction = (componentObject: {
-  state: ComponentState;
-  renderFn: (state: ComponentState) => VNode;
-}) => HTMLElement | Text;
+class App extends Component {
+  constructor() {
+    super({});
+  }
 
-interface ComponentState {
-  [key: string]: any;
+  render(h: CreateElementFunction) {
+    // @ts-ignore
+    return h('div', {}, [h('h1', {}, ['Hello world']), Home]);
+  }
 }
 
-const createComponent: CreateComponentFunction = ({ renderFn, state }) => {
-  const componentState = new Proxy(state, {
-    get(obj, prop: string) {
-      return obj[prop];
-    },
+class Home extends Component {
+  constructor() {
+    super({
+      text: ''
+    });
+  }
 
-    set(obj, prop: string, newVal) {
-      obj[prop] = newVal;
-      const newVCompoent = renderFn(obj);
-      const patch = diff(VComponent, newVCompoent);
-      // @ts-ignore
-      dom = patch(dom);
-      VComponent = newVCompoent;
-
-      return true;
-    }
-  });
-
-  let VComponent = renderFn(componentState);
-  let dom = render(VComponent);
-
-  return dom;
-};
-
-const App = createComponent({
-  state: {
-    word: 'hello'
-  },
-  renderFn: state => {
+  render(h: CreateElementFunction): VNode {
     const children = [
-      createElement('h1', { attrs: { class: 'heading' } }, [
-        `Hello world ${state.word}`
-      ]),
-      createElement('input', {
-        attrs: { type: 'text' },
-        events: {
-          input: e => (state.word = (<HTMLInputElement>e.target).value)
+      h('input', {
+        attrs: {
+          type: 'text'
         },
-        style: { border: '1px solid #ccc' }
+        events: {
+          input: e => (this.state.text = (<HTMLInputElement>e.target).value)
+        }
       })
     ];
 
-    if (state.word) {
-      children.push(createElement('p', {}, [state.word]));
+    if (this.state.text) {
+      children.push(h('p', {}, [this.state.text]));
     }
 
-    return createElement(
-      'div',
-      { attrs: { id: `hello ${state.word}` } },
-      children
-    );
+    return h('div', {}, children);
   }
-});
+}
 
-mount(App, <HTMLElement>document.getElementById('app'));
+mount(new App().dom, <HTMLElement>document.getElementById('app'));
