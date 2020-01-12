@@ -2,15 +2,14 @@ import createElement, { VNode, CreateElementFunction } from './create-element';
 import render from './render';
 import diff from './diff';
 
-export interface IComponent extends Component {
+export interface IComponent {
   new (): Component;
-  prototype: Component;
 }
 
 export default abstract class Component {
   state: any;
   VComponent: VNode;
-  dom: HTMLElement | Text;
+  el: HTMLElement | Text;
 
   constructor(state: { [key: string]: any }) {
     this.render = this.render.bind(this, createElement);
@@ -31,14 +30,14 @@ export default abstract class Component {
     });
 
     this.VComponent = this.render();
-    this.dom = render(this.VComponent);
+    this.el = render(this.VComponent);
   }
 
   patch() {
     const newVCompoent = this.render();
     const patch = diff(this.VComponent, newVCompoent);
     // @ts-ignore
-    patch(this.dom);
+    patch(this.el);
     this.VComponent = newVCompoent;
   }
 
