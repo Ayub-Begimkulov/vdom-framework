@@ -1,11 +1,12 @@
-import { VNode, VChildren, VAttributes } from './create-element';
+import { VNode, VChildren, VAttributes, isVNode } from './create-element';
 import render from './render';
+import { IComponent } from './component';
 
 type Patch<T = HTMLElement | Text> = (node: T) => T | void;
 
 const diff = (
-  oldVNode: VNode | string,
-  newVNode: VNode | string | undefined
+  oldVNode: VNode | IComponent | string,
+  newVNode: VNode | IComponent | string | undefined
 ): Patch => {
   if (typeof newVNode === 'undefined') {
     return node => node.remove();
@@ -23,7 +24,30 @@ const diff = (
     };
   }
 
-  if (oldVNode.tagName !== newVNode.tagName) {
+  if (isVNode(oldVNode) && isVNode(newVNode)) {
+    if (oldVNode.tagName !== newVNode.tagName) {
+      return node => {
+        const newNode = render(newVNode);
+        node.replaceWith(newNode);
+        return newNode;
+      };
+    }
+
+    const patchAttrs = diffAttrs(
+      oldVNode.options?.attrs,
+      newVNode.options?.attrs
+    );
+
+    const patchChildren = diffChildren(oldVNode.children, newVNode.children);
+
+    return node => {
+      patchAttrs(<HTMLElement>node);
+      patchChildren(<HTMLElement>node);
+      return node;
+    };
+  }
+
+  if (isVNode(oldVNode) || isVNode(newVNode)) {
     return node => {
       const newNode = render(newVNode);
       node.replaceWith(newNode);
@@ -31,17 +55,10 @@ const diff = (
     };
   }
 
-  const patchAttrs = diffAttrs(
-    oldVNode.options?.attrs,
-    newVNode.options?.attrs
-  );
-
-  const patchChildren = diffChildren(oldVNode.children, newVNode.children);
-
   return node => {
-    patchAttrs(<HTMLElement>node);
-    patchChildren(<HTMLElement>node);
-    return node;
+    const newNode = new newVNode().el;
+    node.replaceWith(newNode);
+    return newNode;
   };
 };
 

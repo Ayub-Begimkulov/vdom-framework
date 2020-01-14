@@ -1,4 +1,4 @@
-import { VNode, CreateElementFunction } from './vdom/create-element';
+import { VNode, CreateElementFunction, VChildren } from './vdom/create-element';
 import Component from './vdom/component';
 import mount from './vdom/mount';
 
@@ -7,10 +7,11 @@ class App extends Component {
     super({
       name: 'Ayub'
     });
+    console.log(this.VComponent);
   }
 
   render(h: CreateElementFunction) {
-    return h('div', {}, [
+    const children: VChildren = [
       h('h1', {}, ['Hello world' + this.state.name]),
       h('input', {
         attrs: {
@@ -19,9 +20,15 @@ class App extends Component {
         events: {
           input: e => (this.state.name = (<HTMLInputElement>e.target).value)
         }
-      }),
-      Home
-    ]);
+      })
+    ];
+
+    if (this.state.name.length % 2 === 0) {
+      children.push(Home);
+    } else {
+      children.push(About);
+    }
+    return h('div', {}, children);
   }
 }
 
@@ -33,22 +40,19 @@ class Home extends Component {
   }
 
   render(h: CreateElementFunction): VNode {
-    const children = [
-      h('input', {
-        attrs: {
-          type: 'text'
-        },
-        events: {
-          input: e => (this.state.text = (<HTMLInputElement>e.target).value)
-        }
-      })
-    ];
+    return h('h2', {}, ['Home']);
+  }
+}
 
-    if (this.state.text) {
-      children.push(h('p', {}, [this.state.text]));
-    }
+class About extends Component {
+  constructor() {
+    super({
+      text: ''
+    });
+  }
 
-    return h('div', {}, children);
+  render(h: CreateElementFunction): VNode {
+    return h('h2', {}, ['About']);
   }
 }
 
