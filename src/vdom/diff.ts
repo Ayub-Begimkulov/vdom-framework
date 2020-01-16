@@ -4,50 +4,37 @@ import { IComponent } from './component';
 
 type HTMLElementOrText = HTMLElement | Text;
 type Patch<T = HTMLElementOrText, K = HTMLElementOrText> = (node: K) => T;
+type VTree = VNode | IComponent | string;
 
+function diff(oldVTree: VTree, newVTree: undefined): Patch<void>;
+function diff(oldVTree: VTree, newVTree: VTree): Patch;
 function diff(
-  oldVNode: VNode | IComponent | string,
-  newVNode: undefined
-): Patch<void>;
-function diff(
-  oldVNode: VNode | IComponent | string,
-  newVNode: VNode | IComponent | string
-): Patch;
-function diff(
-  oldVNode: VNode | IComponent | string,
-  newVNode: VNode | IComponent | string | undefined
+  oldVTree: VTree,
+  newVTree: VTree | undefined
 ): Patch | Patch<void> {
-  if (typeof newVNode === 'undefined') {
+  if (typeof newVTree === 'undefined') {
     return node => node.remove();
   }
 
-  if (typeof oldVNode === 'string' || typeof newVNode === 'string') {
-    if (oldVNode === newVNode) {
+  if (typeof oldVTree === 'string' || typeof newVTree === 'string') {
+    if (oldVTree === newVTree) {
       return node => node;
     }
 
-    return node => {
-      const newNode = render(newVNode);
-      node.replaceWith(newNode);
-      return newNode;
-    };
+    return replaceNode(newVTree);
   }
 
-  if (isVNode(oldVNode) && isVNode(newVNode)) {
-    if (oldVNode.tagName !== newVNode.tagName) {
-      return node => {
-        const newNode = render(newVNode);
-        node.replaceWith(newNode);
-        return newNode;
-      };
+  if (isVNode(oldVTree) && isVNode(newVTree)) {
+    if (oldVTree.tagName !== newVTree.tagName) {
+      return replaceNode(newVTree);
     }
 
     const patchAttrs = diffAttrs(
-      oldVNode.options?.attrs,
-      newVNode.options?.attrs
+      oldVTree.options?.attrs,
+      newVTree.options?.attrs
     );
 
-    const patchChildren = diffChildren(oldVNode.children, newVNode.children);
+    const patchChildren = diffChildren(oldVTree.children, newVTree.children);
 
     return node => {
       patchAttrs(<HTMLElement>node);
@@ -56,16 +43,12 @@ function diff(
     };
   }
 
-  if (isVNode(oldVNode) || isVNode(newVNode)) {
-    return node => {
-      const newNode = render(newVNode);
-      node.replaceWith(newNode);
-      return newNode;
-    };
+  if (isVNode(oldVTree) || isVNode(newVTree)) {
+    return replaceNode(newVTree);
   }
 
   return node => {
-    const newNode = new newVNode().el;
+    const newNode = new newVTree().el;
     node.replaceWith(newNode);
     return newNode;
   };
@@ -120,6 +103,12 @@ const diffChildren = (
 
     newChildrenPatches.forEach(patch => patch(parentNode));
   };
+};
+
+const replaceNode = (newVTree: VTree): Patch => node => {
+  const newNode = render(newVTree);
+  node.replaceWith(newNode);
+  return newNode;
 };
 
 export default diff;
