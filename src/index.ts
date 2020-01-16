@@ -7,7 +7,6 @@ class App extends Component {
     super({
       name: 'Ayub'
     });
-    console.log(this.VComponent);
   }
 
   render(h: CreateElementFunction) {

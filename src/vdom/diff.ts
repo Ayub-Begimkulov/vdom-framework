@@ -2,12 +2,21 @@ import { VNode, VChildren, VAttributes, isVNode } from './create-element';
 import render from './render';
 import { IComponent } from './component';
 
-type Patch<T = HTMLElement | Text> = (node: T) => T | void;
+type HTMLElementOrText = HTMLElement | Text;
+type Patch<T = HTMLElementOrText, K = HTMLElementOrText> = (node: K) => T;
 
-const diff = (
+function diff(
+  oldVNode: VNode | IComponent | string,
+  newVNode: undefined
+): Patch<void>;
+function diff(
+  oldVNode: VNode | IComponent | string,
+  newVNode: VNode | IComponent | string
+): Patch;
+function diff(
   oldVNode: VNode | IComponent | string,
   newVNode: VNode | IComponent | string | undefined
-): Patch => {
+): Patch | Patch<void> {
   if (typeof newVNode === 'undefined') {
     return node => node.remove();
   }
@@ -60,10 +69,10 @@ const diff = (
     node.replaceWith(newNode);
     return newNode;
   };
-};
+}
 
 const diffAttrs = (oldAttrs: VAttributes = {}, newAttrs: VAttributes = {}) => {
-  const patches: Patch<HTMLElement>[] = [];
+  const patches: Patch<void, HTMLElement>[] = [];
 
   for (const key in newAttrs) {
     patches.push(node => {
@@ -96,7 +105,7 @@ const diffChildren = (
     oldChildrenPatches.push(diff(oldVChildren[i], newVChildren[i]));
   }
 
-  const newChildrenPatches: Patch[] = [];
+  const newChildrenPatches: Patch<void>[] = [];
 
   for (const newNode of newVChildren.slice(oldVChildren.length)) {
     newChildrenPatches.push(node => {
@@ -104,12 +113,12 @@ const diffChildren = (
     });
   }
 
-  return (node: HTMLElement) => {
-    node.childNodes.forEach((child, i) => {
-      oldChildrenPatches[i](<HTMLElement>child);
+  return (parentNode: HTMLElement) => {
+    parentNode.childNodes.forEach((child, i) => {
+      oldChildrenPatches[i](<HTMLElementOrText>child);
     });
 
-    newChildrenPatches.forEach(patch => patch(node));
+    newChildrenPatches.forEach(patch => patch(parentNode));
   };
 };
 

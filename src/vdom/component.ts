@@ -6,12 +6,16 @@ export interface IComponent {
   new (): Component;
 }
 
+interface IState {
+  [key: string]: any;
+}
+
 export default abstract class Component {
-  state: any;
+  state: IState;
   VComponent: VNode;
   el: HTMLElement | Text;
 
-  constructor(state: { [key: string]: any }) {
+  constructor(state: IState) {
     this.render = this.render.bind(this, createElement);
     const self = this;
 
@@ -36,8 +40,7 @@ export default abstract class Component {
   patch() {
     const newVCompoent = this.render();
     const patch = diff(this.VComponent, newVCompoent);
-    // @ts-ignore
-    patch(this.el);
+    this.el = patch(this.el);
     this.VComponent = newVCompoent;
   }
 
