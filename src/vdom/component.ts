@@ -15,6 +15,9 @@ export default abstract class Component {
   VComponent: VNode;
   el: HTMLElement | Text;
 
+  beforeMount?(): void;
+  abstract render(h?: CreateElementFunction): VNode;
+
   constructor(state: IState) {
     this.render = this.render.bind(this, createElement);
     const self = this;
@@ -34,6 +37,7 @@ export default abstract class Component {
     });
 
     this.VComponent = this.render();
+    this.beforeMount && this.beforeMount();
     this.el = render(this.VComponent);
   }
 
@@ -43,6 +47,4 @@ export default abstract class Component {
     this.el = patch(this.el);
     this.VComponent = newVCompoent;
   }
-
-  abstract render(h?: CreateElementFunction): VNode;
 }
