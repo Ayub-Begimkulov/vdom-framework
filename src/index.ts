@@ -1,6 +1,21 @@
 import { VNode, CreateElementFunction, VChildren } from './vdom/create-element';
 import Component from './vdom/component';
 import mount from './vdom/mount';
+import createStore, { Reducer } from './store';
+
+type StoreState = { text: string };
+
+const reducer: Reducer<StoreState> = (state = { text: '' }, action) => {
+  switch (action.type) {
+    case 'TEST':
+      return { ...state, text: action.payload.text };
+
+    default:
+      return state;
+  }
+};
+
+const store = createStore<StoreState>(reducer);
 
 class App extends Component {
   constructor() {
@@ -19,14 +34,11 @@ class App extends Component {
         events: {
           input: e => (this.state.name = (<HTMLInputElement>e.target).value)
         }
-      })
+      }),
+      Home,
+      About
     ];
 
-    if (this.state.name.length % 2 === 0) {
-      children.push(Home);
-    } else {
-      children.push(About);
-    }
     return h('div', {}, children);
   }
 }
@@ -39,7 +51,27 @@ class Home extends Component {
   }
 
   render(h: CreateElementFunction): VNode {
-    return h('h2', {}, ['Home']);
+    return h('h2', {}, [
+      'Home Input',
+      h('input', {
+        attrs: {
+          type: 'text'
+        },
+        style: {
+          display: 'block'
+        },
+        events: {
+          input: e => {
+            const newValue = (<HTMLInputElement>e.target).value;
+            this.state.text = newValue;
+            store.dispatch({
+              type: 'TEST',
+              payload: { text: newValue }
+            });
+          }
+        }
+      })
+    ]);
   }
 }
 
@@ -50,8 +82,17 @@ class About extends Component {
     });
   }
 
+  beforeMount() {
+    store.subscribe(() => {
+      this.state.text = store.getState().text;
+    });
+  }
+
   render(h: CreateElementFunction): VNode {
-    return h('h2', {}, ['About']);
+    return h('div', {}, [
+      h('h2', {}, ['About']),
+      h('div', {}, [this.state.text])
+    ]);
   }
 }
 
