@@ -1,7 +1,7 @@
 import { VNode, isVNode } from './create-element';
 import { IComponent } from './component';
 
-const render = (node: VNode | IComponent | string) => {
+export default function render(node: VNode | IComponent | string) {
   if (typeof node === 'string') {
     return document.createTextNode(node);
   }
@@ -11,13 +11,13 @@ const render = (node: VNode | IComponent | string) => {
   }
 
   return new node().el;
-};
+}
 
-const renderVNode = ({
+function renderVNode({
   tagName,
   options: { attrs, events, style } = {},
   children = []
-}: VNode) => {
+}: VNode) {
   const el = document.createElement(tagName);
 
   if (attrs) {
@@ -43,6 +43,4 @@ const renderVNode = ({
   }
 
   return el;
-};
-
-export default render;
+}

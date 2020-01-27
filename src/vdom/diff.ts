@@ -54,7 +54,7 @@ function diff(
   };
 }
 
-const diffAttrs = (oldAttrs: VAttributes = {}, newAttrs: VAttributes = {}) => {
+function diffAttrs(oldAttrs: VAttributes = {}, newAttrs: VAttributes = {}) {
   const patches: Patch<void, HTMLElement>[] = [];
 
   for (const key in newAttrs) {
@@ -76,12 +76,12 @@ const diffAttrs = (oldAttrs: VAttributes = {}, newAttrs: VAttributes = {}) => {
       patch(node);
     }
   };
-};
+}
 
-const diffChildren = (
+function diffChildren(
   oldVChildren: VChildren = [],
   newVChildren: VChildren = []
-) => {
+) {
   const oldChildrenPatches: Patch[] = [];
 
   for (let i = 0; i < oldVChildren.length; i++) {
@@ -103,7 +103,7 @@ const diffChildren = (
 
     newChildrenPatches.forEach(patch => patch(parentNode));
   };
-};
+}
 
 const replaceNode = (newVTree: VTree): Patch => node => {
   const newNode = render(newVTree);

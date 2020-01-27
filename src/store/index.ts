@@ -19,17 +19,19 @@ export default function createStore<S, A extends Action = AnyAction>(
   let state = <S>{};
   const listeners: Listener[] = [];
 
-  const getState = () => state;
+  function getState() {
+    return state;
+  }
 
-  const subscribe = (listener: Listener) => {
+  function subscribe(listener: Listener) {
     listeners.push(listener);
 
-    return () => {
+    return function unsubscribe() {
       listeners.splice(listeners.indexOf(listener), 1);
     };
-  };
+  }
 
-  const dispatch = (action: A) => {
+  function dispatch(action: A) {
     state = reducer(state, action);
 
     listeners.forEach(listener => {
@@ -37,7 +39,7 @@ export default function createStore<S, A extends Action = AnyAction>(
     });
 
     return action;
-  };
+  }
 
   return {
     getState,
