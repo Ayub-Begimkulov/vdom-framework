@@ -48,9 +48,10 @@ function diff(
   }
 
   return node => {
-    const newNode = new newVTree().el;
-    node.replaceWith(newNode);
-    return newNode;
+    const Component = newVTree;
+    const el = new Component().el;
+    node.replaceWith(el);
+    return el;
   };
 }
 
@@ -105,10 +106,12 @@ function diffChildren(
   };
 }
 
-const replaceNode = (newVTree: VTree): Patch => node => {
-  const newNode = render(newVTree);
-  node.replaceWith(newNode);
-  return newNode;
-};
+function replaceNode(newVTree: VTree): Patch {
+  return node => {
+    const newNode = render(newVTree);
+    node.replaceWith(newNode);
+    return newNode;
+  };
+}
 
 export default diff;
