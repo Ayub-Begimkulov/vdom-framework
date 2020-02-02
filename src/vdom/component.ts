@@ -10,24 +10,25 @@ interface IState {
   [key: string]: any;
 }
 
-export default abstract class Component {
-  state: IState;
+export default abstract class Component<S extends IState = IState> {
+  state: S;
   VComponent: VNode;
   el: HTMLElement | Text;
 
   beforeMount?(): void;
+  abstract initialState(): S;
   abstract render(h?: CreateElementFunction): VNode;
 
-  constructor(state: IState) {
+  constructor() {
     this.render = this.render.bind(this, createElement);
     const self = this;
 
-    this.state = new Proxy(state, {
+    this.state = new Proxy(this.initialState(), {
       get(obj, prop: string) {
         return obj[prop];
       },
 
-      set(obj, prop: string, newVal) {
+      set(obj: IState, prop: string, newVal) {
         obj[prop] = newVal;
 
         self.patch();
@@ -42,9 +43,9 @@ export default abstract class Component {
   }
 
   patch() {
-    const newVCompoent = this.render();
-    const patch = diff(this.VComponent, newVCompoent);
+    const newVComponent = this.render();
+    const patch = diff(this.VComponent, newVComponent);
     this.el = patch(this.el);
-    this.VComponent = newVCompoent;
+    this.VComponent = newVComponent;
   }
 }
