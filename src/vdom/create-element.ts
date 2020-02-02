@@ -6,18 +6,14 @@ export interface VNode {
   children?: VChildren;
 }
 
-interface VNodeOption<T> {
-  [key: string]: T;
-}
-
 interface VNodeOptions {
   attrs?: VAttributes;
-  events?: VNodeOption<EventListenerOrEventListenerObject>;
-  style?: VNodeOption<string>;
+  events?: Record<string, EventListenerOrEventListenerObject>;
+  style?: Record<string, string>;
 }
 
 export type VChildren = Array<VNode | IComponent | string>;
-export type VAttributes = VNodeOption<string>;
+export type VAttributes = Record<string, string>;
 export type CreateElementFunction = typeof createElement;
 
 export default function createElement(
@@ -32,6 +28,6 @@ export default function createElement(
   };
 }
 
-export function isVNode(node: VNode | IComponent): node is VNode {
-  return !!(<VNode>node).tagName;
+export function isVNode(node: any): node is VNode {
+  return !!node.tagName;
 }

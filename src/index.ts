@@ -28,18 +28,22 @@ const numberReducer: Reducer<{ number: number }> = (
   }
 };
 
-const roootReducer = combineReducers({
+const rootReducer = combineReducers({
   text: textReducer,
   number: numberReducer
 });
 
-const store = createStore(roootReducer);
+const store = createStore(rootReducer);
 
 class App extends Component {
   constructor() {
-    super({
-      name: 'Ayub'
-    });
+    super();
+  }
+
+  initialState() {
+    return {
+      name: ''
+    };
   }
 
   render(h: CreateElementFunction) {
@@ -61,12 +65,16 @@ class App extends Component {
   }
 }
 
-class Home extends Component {
+class Home extends Component<{ text: string; number: number }> {
   constructor() {
-    super({
+    super();
+  }
+
+  initialState() {
+    return {
       text: '',
       number: 0
-    });
+    };
   }
 
   beforeMount() {
@@ -103,10 +111,14 @@ class Home extends Component {
 
 class About extends Component {
   constructor() {
-    super({
+    super();
+  }
+
+  initialState() {
+    return {
       text: '',
       number: 0
-    });
+    };
   }
 
   beforeMount() {
